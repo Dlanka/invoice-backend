@@ -1,15 +1,33 @@
+const mongoose = require("mongoose");
+
 module.exports = function baseFieldsPlugin(schema, options) {
-  // Add common fields
-  schema.add({
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
-    },
-  });
+  schema.set("timestamps", true);
+
+  if (options?.createdBy) {
+    schema.add({
+      createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+      },
+
+      updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+      },
+    });
+
+    schema.pre("findOneAndUpdate", function (next) {
+      const userId = this.getOptions()?.currentUser;
+
+      if (!userId) return next();
+
+      this.set({ updatedBy: userId });
+
+      next();
+    });
+  }
 
   // Optional: Add pre-save hook to auto-update `updatedAt`
   schema.pre("save", function (next) {

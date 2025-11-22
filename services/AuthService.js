@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 const User = require("../models/user.model");
-const RefreshTokenService = require("./RefreshTokenService");
 
 class AuthService {
   static async create(data) {
@@ -35,6 +34,13 @@ class AuthService {
     }
 
     return user;
+  }
+
+  static async assignTenant(tenantId, userId) {
+    return await User.findByIdAndUpdate(userId, {
+      tenantId,
+      // role: "admin", // first user is usually the tenant admin
+    });
   }
 
   static generateAccessToken(user) {

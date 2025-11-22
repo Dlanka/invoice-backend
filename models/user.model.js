@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const baseFieldsPlugins = require("../plugins/baseFields.plugins");
+const baseJsonPlugin = require("../plugins/baseJsonPlugin");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -24,6 +25,11 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 1,
   },
+  tenantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tenant",
+    default: null,
+  },
 });
 
 userSchema.pre("save", async function (next) {
@@ -33,6 +39,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+userSchema.plugin(baseJsonPlugin);
 userSchema.plugin(baseFieldsPlugins);
 
 const User = mongoose.model("User", userSchema);
