@@ -1,5 +1,6 @@
 const AuthService = require("../services/AuthService");
 const RefreshTokenService = require("../services/RefreshTokenService");
+const { sendResponse } = require("../utils/response");
 
 class AuthController {
   static isProduction = process.env.NODE_ENV === "production";
@@ -8,9 +9,7 @@ class AuthController {
     try {
       const user = await AuthService.create(req.body);
 
-      res
-        .status(201)
-        .json({ message: "User registered successfully", result: user });
+      return sendResponse(res, 201, "User registered successfully", user);
     } catch (error) {
       if (!error.statusCode) {
         error.statusCode = 500;
@@ -38,12 +37,9 @@ class AuthController {
 
       AuthService.setAccessTokenCookie(res, accessToken);
 
-      res.status(200).json({
-        message: "Login successful",
-        result: {
-          id: user._id,
-          accessToken,
-        },
+      return sendResponse(res, 200, "Login successful", {
+        id: user._id,
+        accessToken,
       });
     } catch (error) {
       if (!error.statusCode) {
